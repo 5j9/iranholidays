@@ -4,22 +4,17 @@ requires = [
     'wheel',
 ]
 
-build-backend = "setuptools.build_meta"
+build-backend = 'setuptools.build_meta'
 
 [project]
-name = "iranholidays"
+name = 'iranholidays'
 authors = [
-    { name = "5j9", email = "5j9@users.noreply.github.com" },
+    { name = '5j9', email = '5j9@users.noreply.github.com' },
 ]
-description = "provides functions to tell if a date is a holiday in Iran or not"
-readme = "README.rst"
-requires-python = ">=3.11"
-license = {text = "MIT"}
-classifiers = [
-    "Programming Language :: Python :: 3",
-	"License :: OSI Approved :: MIT License",
-]
-dependencies = ["jdatetime", "hijri-converter"]
+description = 'provides functions to tell if a date is a holiday in Iran or not'
+readme = 'README.rst'
+requires-python = '>=3.11'
+dependencies = ['jdatetime', 'hijri-converter']
 
 [tool.setuptools]
 zip-safe = true
@@ -28,10 +23,10 @@ include-package-data = false
 [tool.setuptools.packages.find]
 namespaces = false
 
-dynamic = ["version"]
+dynamic = ['version']
 
 [tool.setuptools.dynamic.version]
-attr = "iranholidays.__version__"
+attr = 'iranholidays.__version__'
 
 [tool.ruff]
 line-length = 79
