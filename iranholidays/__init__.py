@@ -5,7 +5,7 @@ from hijri_converter import Gregorian as _Gregorian, Hijri as _Hijri
 from jdatetime import date as _jdate, datetime as _jdatetime
 from jdatetime.jalali import GregorianToJalali as _G, JalaliToGregorian as _J
 
-__version__ = '0.0.0.dev0'
+__version__ = '0.0.1.dev0'
 
 SOLAR_HOLIDAYS = [
     None,
