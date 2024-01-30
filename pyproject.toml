@@ -16,6 +16,7 @@ readme = 'README.rst'
 requires-python = '>=3.11'
 dependencies = ['jdatetime', 'hijri-converter']
 dynamic = ['version']
+license = {text = "Apache-2.0"}
 
 [tool.setuptools]
 zip-safe = true
