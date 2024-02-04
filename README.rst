@@ -4,7 +4,7 @@
 
 Usage:
 
-.. code-block::
+.. code-block:: python
 
     from iranholidays import holiday_occasion
 
@@ -21,7 +21,7 @@ Usage:
 
 In case you have a date object from the following libraries, you can check it directly using one of the `hiliday_occasion_from_*` functions:
 
-.. code-block::
+.. code-block:: python
 
     from datetime import date
 
