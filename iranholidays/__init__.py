@@ -96,40 +96,44 @@ HIJRI_HOLIDAYS = [
 ]
 
 
+_IsWorkday = _Literal[True] | str
+_Weekend = _Container[int]
+
+
 def is_workday_gregorian(
-    date: _date, /, weekend: _Container[int] = (4,)
-) -> bool:
+    date: _date, /, weekend: _Weekend = (4,)
+) -> _IsWorkday:
     if date.weekday() in weekend:
-        return False
+        return 'Weekend'
     year, month, day = date.year, date.month, date.day
     _, hm, hd = _Gregorian(year, month, day).to_hijri().datetuple()
-    if HIJRI_HOLIDAYS[hm].get(hd) is not None:
-        return False
+    if (h := HIJRI_HOLIDAYS[hm].get(hd)) is not None:
+        return h
     sy, sm, sd = _GregorianToJalali(year, month, day).getJalaliList()
-    return SOLAR_HOLIDAYS[sm].get(sd) is None
+    return SOLAR_HOLIDAYS[sm].get(sd) or True
 
 
-def is_workday_solar(date: _jdate, /, weekend: _Container[int] = (4,)) -> bool:
+def is_workday_solar(date: _jdate, /, weekend: _Weekend = (4,)) -> _IsWorkday:
     if date.weekday() in weekend:
-        return False
+        return 'Weekend'
     month, day = date.month, date.day
-    if SOLAR_HOLIDAYS[month].get(day) is not None:
-        return False
-    h = _Gregorian(*date.togregorian().timetuple()[:3]).to_hijri()
-    hy, hm, hd = h.datetuple()
-    return HIJRI_HOLIDAYS[hm].get(hd) is None
+    if (h := SOLAR_HOLIDAYS[month].get(day)) is not None:
+        return h
+    hdate = _Gregorian(*date.togregorian().timetuple()[:3]).to_hijri()
+    hy, hm, hd = hdate.datetuple()
+    return HIJRI_HOLIDAYS[hm].get(hd) or True
 
 
-def is_workday_lunar(date: _Hijri, /, weekend: _Container[int] = (4,)) -> bool:
+def is_workday_lunar(date: _Hijri, /, weekend: _Weekend = (4,)) -> _IsWorkday:
     if date.weekday() in weekend:
-        return False
+        return 'Weekend'
     month, day = date.month, date.day
-    if HIJRI_HOLIDAYS[month].get(day) is not None:
-        return False
+    if (h := HIJRI_HOLIDAYS[month].get(day)) is not None:
+        return h
     sy, sm, sd = _GregorianToJalali(
         *date.to_gregorian().datetuple()
     ).getJalaliList()
-    return SOLAR_HOLIDAYS[sm].get(sd) is None
+    return SOLAR_HOLIDAYS[sm].get(sd) or True
 
 
 Calendar = _Literal['S', 'L', 'G']
@@ -141,33 +145,33 @@ def is_workday_ymd(
     day: int,
     calendar: Calendar,
     /,
-    weekend: _Container[int] = (4,),
-) -> bool:
+    weekend: _Weekend = (4,),
+) -> _IsWorkday:
     if calendar == 'S':
-        if SOLAR_HOLIDAYS[month].get(day) is not None:
-            return False
+        if (h := SOLAR_HOLIDAYS[month].get(day)) is not None:
+            return h
         gy, gm, gd = _JalaliToGregorian(year, month, day).getGregorianList()
         gdate = _Gregorian(gy, gm, gd)
         if _date(gy, gm, gd).weekday() in weekend:
-            return False
+            return 'Weekend'
         hdate = gdate.to_hijri()
         hy, hm, hd = hdate.datetuple()
-        return HIJRI_HOLIDAYS[hm].get(hd) is None
+        return HIJRI_HOLIDAYS[hm].get(hd) or True
 
     elif calendar == 'G':
         gdate = _date(year, month, day)
         return is_workday_gregorian(gdate, weekend)
 
     elif calendar == 'L':
-        if HIJRI_HOLIDAYS[month].get(day) is not None:
-            return False
+        if (h := HIJRI_HOLIDAYS[month].get(day)) is not None:
+            return h
         hdate = _Hijri(year, month, day)
         if hdate.weekday() in weekend:
-            return False
+            return 'Weekend'
         sy, sm, sd = _GregorianToJalali(
             *hdate.to_gregorian().datetuple()
         ).getJalaliList()
-        return SOLAR_HOLIDAYS[sm].get(sd) is None
+        return SOLAR_HOLIDAYS[sm].get(sd) or True
 
     else:
         raise ValueError(f'unknown {calendar=}')
@@ -177,14 +181,14 @@ DateTuple = tuple[int, int, int, Calendar]
 
 
 def _is_workday_tuple(
-    date: DateTuple, /, weekend: _Container[int] = (4,)
-) -> bool:
+    date: DateTuple, /, weekend: _Weekend = (4,)
+) -> _IsWorkday:
     return is_workday_ymd(*date, weekend=weekend)
 
 
 AnyDate = _date | DateTuple | _jdate | _Hijri
 _date_handler: dict[
-    type[AnyDate], _Callable[[AnyDate, _Container[int]], bool]
+    type[AnyDate], _Callable[[AnyDate, _Weekend], _IsWorkday]
 ] = {
     _Hijri: is_workday_lunar,
     _date: is_workday_gregorian,
@@ -196,17 +200,29 @@ _date_handler: dict[
 }
 
 
-def is_workday(date: AnyDate, /, weekend: _Container[int] = (4,)) -> bool:
-    """Return True if date is a workday and is not a holiday."""
+def is_workday(date: AnyDate, /, weekend: _Weekend = (4,)) -> _IsWorkday:
+    """Return True if date is a workday and is not a holiday.
+
+    Warning: If date is not a workday, the occasion or 'Weekend' will be
+    returned instead of returning False. Therefore, `if is_workday(date):` will
+    *not* work as expected, use `if is_workday(date) is True:` instead.
+    """
     return _date_handler[type(date)](date, weekend)
 
 
-def is_holiday(date: AnyDate) -> bool:
-    """Return True if date is a holiday. Same as `is_workday(date, ())`."""
-    return not is_workday(date, ())
+def is_holiday(date: AnyDate) -> _Literal[False] | str:
+    """Return False if date is not a holiday, otherwise the occasion string.
+
+    If date is a holiday, instead of returning `True`, the first detected
+    occasion will be returned as as string.
+
+    This is a shortcut for `is_workday(date, weekend=())`.
+    """
+    workday = is_workday(date, ())
+    return False if workday is True else workday
 
 
-def set_default_weekend(weekend: _Container[int]):
+def set_default_weekend(weekend: _Weekend):
     """Change the default weekend value for all functions."""
     defaults = (weekend,)
     for f in (
