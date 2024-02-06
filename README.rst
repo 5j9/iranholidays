@@ -7,15 +7,15 @@ Usage
 
 .. code-block:: python
 
-    from iranholidays import is_holiday
+    from iranholidays import holiday_occasion
 
-    assert is_holiday((2024, 4, 1, 'G')) == 'Sizdah Be-dar'  # Gregorian
-    assert is_holiday((1403, 1, 13, 'S')) == 'Sizdah Be-dar'  # Solar
-    assert is_holiday((1403, 1, 14, 'S')) is False
-    assert is_holiday((1445, 9, 21, 'L')) == 'Martyrdom of Ali'  # Lunar
+    assert holiday_occasion((2024, 4, 1, 'G')) == 'Sizdah Be-dar'  # Gregorian
+    assert holiday_occasion((1403, 1, 13, 'S')) == 'Sizdah Be-dar'  # Solar
+    assert holiday_occasion((1403, 1, 14, 'S')) is False
+    assert holiday_occasion((1445, 9, 21, 'L')) == 'Martyrdom of Ali'  # Lunar
 
 
-In case you have a date object from the following libraries, you can check it directly using one of the ``is_workday_*`` functions:
+In case you have a date object from the following libraries, you can check it directly using one of the ``off_occasion_*`` functions:
 
 .. code-block:: python
 
@@ -25,27 +25,27 @@ In case you have a date object from the following libraries, you can check it di
     import jdatetime
 
     from iranholidays import (
-        is_workday_gregorian,
-        is_workday_lunar,
-        is_workday_solar,
+        off_occasion_gregorian,
+        off_occasion_lunar,
+        off_occasion_solar,
     )
 
     date = datetime.date(2024, 4, 1)
-    assert is_workday_gregorian(date, weekend=()) == 'Sizdah Be-dar'
+    assert off_occasion_gregorian(date, weekend=()) == 'Sizdah Be-dar'
 
     date = jdatetime.date(1403, 1, 13)
-    assert is_workday_solar(date, weekend=()) == 'Sizdah Be-dar'
+    assert off_occasion_solar(date, weekend=()) == 'Sizdah Be-dar'
 
     date = hijri_converter.Hijri(1445, 9, 21)
-    assert is_workday_lunar(date, weekend=()) == 'Martyrdom of Ali'
+    assert off_occasion_lunar(date, weekend=()) == 'Martyrdom of Ali'
 
-``is_workday`` function checks if a date is a weekend and returns True or the occasion string. The default value for weekend parameter is ``(4,)`` which means Friday. Either pass a different value to ``weekend`` parameter to override it or use ``set_default_weekend`` function to change the default:
+``off_occasion`` function checks if a date is a weekend or holiday and returns the occasion string or ``None``. The default value for weekend parameter is ``(4,)`` which means Friday. Either pass a different value to ``weekend`` parameter to override it or use ``set_default_weekend`` function to change this default for all functions:
 
 .. code-block:: python
 
-    from iranholidays import is_workday, set_default_weekend
+    from iranholidays import off_occasion, set_default_weekend
     date = (2024, 2, 5, 'G')  # a non-holiday Monday
-    assert is_workday(date) is True
-    assert is_workday(date, weekend=(0,)) == 'Weekend'
+    assert off_occasion(date) is None
+    assert off_occasion(date, weekend=(0,)) == 'Weekend'
     set_default_weekend((0,))  # set default weekends to Thursday and Friday
-    assert is_workday(date) == 'Weekend'
+    assert off_occasion(date) == 'Weekend'
