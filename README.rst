@@ -11,7 +11,7 @@ Usage
 
     assert holiday_occasion((2024, 4, 1, 'G')) == 'Sizdah Be-dar'  # Gregorian
     assert holiday_occasion((1403, 1, 13, 'S')) == 'Sizdah Be-dar'  # Solar
-    assert holiday_occasion((1403, 1, 14, 'S')) is False
+    assert holiday_occasion((1403, 1, 14, 'S')) is None
     assert holiday_occasion((1445, 9, 21, 'L')) == 'Martyrdom of Ali'  # Lunar
 
 
