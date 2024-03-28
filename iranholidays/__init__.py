@@ -9,7 +9,7 @@ from jdatetime.jalali import (
     JalaliToGregorian as _JalaliToGregorian,
 )
 
-__version__ = '0.2.2.dev0'
+__version__ = '0.2.2'
 
 SOLAR_HOLIDAYS = [
     None,
