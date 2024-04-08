@@ -11,7 +11,7 @@ authors = [
 description = 'provides functions to tell if a date is a holiday in Iran or not'
 readme = 'README.rst'
 requires-python = '>=3.11'
-dependencies = ['jdatetime', 'hijri-converter']
+dependencies = ['gshconverter', 'hijri-converter']
 dynamic = ['version']
 license = {text = "GPL-3.0"}
 

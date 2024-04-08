@@ -2,12 +2,12 @@ from collections.abc import Callable as _Callable, Container as _Container
 from datetime import date as _date, datetime as _datetime
 from typing import Literal as _Literal
 
+from gshconverter import (
+    gregorian_to_solar_hijri as _g_to_sh,
+    solar_hijri_to_gregorian as _sh_to_g,
+)
 from hijri_converter import Gregorian as _Gregorian, Hijri as _Hijri
 from jdatetime import date as _jdate, datetime as _jdatetime
-from jdatetime.jalali import (
-    GregorianToJalali as _GregorianToJalali,
-    JalaliToGregorian as _JalaliToGregorian,
-)
 
 __version__ = '0.2.3.dev0'
 
@@ -109,7 +109,7 @@ def off_occasion_gregorian(
     _, hm, hd = _Gregorian(year, month, day).to_hijri().datetuple()
     if (occ := HIJRI_HOLIDAYS[hm].get(hd)) is not None:
         return occ
-    sy, sm, sd = _GregorianToJalali(year, month, day).getJalaliList()
+    sy, sm, sd = _sh_to_g(year, month, day)
     return SOLAR_HOLIDAYS[sm].get(sd)
 
 
@@ -134,9 +134,7 @@ def off_occasion_lunar(
     month, day = date.month, date.day
     if (occ := HIJRI_HOLIDAYS[month].get(day)) is not None:
         return occ
-    sy, sm, sd = _GregorianToJalali(
-        *date.to_gregorian().datetuple()
-    ).getJalaliList()
+    sy, sm, sd = _g_to_sh(*date.to_gregorian().datetuple())
     return SOLAR_HOLIDAYS[sm].get(sd)
 
 
@@ -154,7 +152,7 @@ def off_occasion_ymd(
     if calendar == 'S':
         if (occ := SOLAR_HOLIDAYS[month].get(day)) is not None:
             return occ
-        gy, gm, gd = _JalaliToGregorian(year, month, day).getGregorianList()
+        gy, gm, gd = _sh_to_g(year, month, day)
         gdate = _Gregorian(gy, gm, gd)
         if _date(gy, gm, gd).weekday() in weekend:
             return 'Weekend'
@@ -172,9 +170,7 @@ def off_occasion_ymd(
         hdate = _Hijri(year, month, day)
         if hdate.weekday() in weekend:
             return 'Weekend'
-        sy, sm, sd = _GregorianToJalali(
-            *hdate.to_gregorian().datetuple()
-        ).getJalaliList()
+        sy, sm, sd = _g_to_sh(*hdate.to_gregorian().datetuple())
         return SOLAR_HOLIDAYS[sm].get(sd)
 
     else:
