@@ -153,16 +153,13 @@ def off_occasion_ymd(
         if (occ := SOLAR_HOLIDAYS[month].get(day)) is not None:
             return occ
         gy, gm, gd = _sh_to_g(year, month, day)
-        gdate = _Gregorian(gy, gm, gd)
         if _date(gy, gm, gd).weekday() in weekend:
             return 'Weekend'
-        hdate = gdate.to_hijri()
-        hy, hm, hd = hdate.datetuple()
+        hy, hm, hd = _Gregorian(gy, gm, gd).to_hijri().datetuple()
         return HIJRI_HOLIDAYS[hm].get(hd)
 
     elif calendar == 'G':
-        gdate = _date(year, month, day)
-        return off_occasion_gregorian(gdate, weekend)
+        return off_occasion_gregorian(_date(year, month, day), weekend)
 
     elif calendar == 'L':
         if (occ := HIJRI_HOLIDAYS[month].get(day)) is not None:
