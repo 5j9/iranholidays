@@ -109,7 +109,7 @@ def off_occasion_gregorian(
     _, hm, hd = _Gregorian(year, month, day).to_hijri().datetuple()
     if (occ := HIJRI_HOLIDAYS[hm].get(hd)) is not None:
         return occ
-    sy, sm, sd = _sh_to_g(year, month, day)
+    sy, sm, sd = _g_to_sh(year, month, day)
     return SOLAR_HOLIDAYS[sm].get(sd)
 
 
