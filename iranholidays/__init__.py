@@ -9,7 +9,7 @@ from gshconverter import (
 from hijri_converter import Gregorian as _Gregorian, Hijri as _Hijri
 from jdatetime import date as _jdate, datetime as _jdatetime
 
-__version__ = '0.2.4.dev0'
+__version__ = '0.2.4'
 
 SOLAR_HOLIDAYS = [
     None,
