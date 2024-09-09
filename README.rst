@@ -2,6 +2,8 @@
 
 **Warning:** For Islamic holidays, like Eid al-Fitr, the calculation may be off by a day or two since those events depend on seeing the moon by naked eye and cannot be predicted by computers.
 
+This repository was archived in favour of https://github.com/5j9/timeir .
+
 Usage
 -----
 
